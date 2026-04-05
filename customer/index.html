@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0f1923">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ঘরের স্বাদ">
+<link rel="manifest" href="/manifest.json">
+<title>ঘরের স্বাদ — অর্ডার করুন</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1923;--card:#162130;--card2:#1c2d40;--border:#1e3448;
+  --gold:#f0b429;--blue:#3b9eff;--green:#34d399;--red:#f87171;
+  --text:#e8f0f8;--muted:#4a6a88;--orange:#fb923c;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
+input,select,button,textarea{font-family:inherit;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue)!important;}
+button:active{opacity:.8;transform:scale(.97);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.anim{animation:fadeUp .25s ease;}
+
+/* ── Screens ── */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+
+/* ── Splash ── */
+#splash{background:linear-gradient(160deg,#060e1a,#0f1923);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-height:100vh;}
+.splash-logo{width:90px;height:90px;border-radius:24px;background:linear-gradient(135deg,var(--gold),#c06000);display:flex;align-items:center;justify-content:center;font-size:44px;box-shadow:0 8px 32px rgba(240,180,41,.35);}
+.splash-title{font-size:28px;font-weight:800;letter-spacing:.3px;}
+.splash-sub{font-size:14px;color:var(--muted);}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+
+/* ── Auth ── */
+#auth{background:var(--bg);padding:24px;}
+.auth-logo{width:60px;height:60px;border-radius:18px;background:linear-gradient(135deg,var(--gold),#c06000);display:flex;align-items:center;justify-content:center;font-size:28px;margin:32px auto 20px;box-shadow:0 6px 24px rgba(240,180,41,.3);}
+.auth-title{text-align:center;font-size:22px;font-weight:800;margin-bottom:6px;}
+.auth-sub{text-align:center;font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+.inp{width:100%;background:#0a1525;border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:15px;transition:border-color .2s;}
+.inp::placeholder{color:var(--muted);}
+.field{margin-bottom:14px;}
+.label{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px;}
+.btn{border:1px solid;border-radius:14px;padding:14px 16px;font-size:15px;font-weight:700;cursor:pointer;width:100%;text-align:center;transition:opacity .2s;}
+.btn-gold{background:linear-gradient(135deg,#d4940a,var(--gold));color:#000;border-color:var(--gold);}
+.btn-ghost{background:transparent;color:var(--muted);border-color:var(--border);}
+.btn-blue{background:linear-gradient(135deg,#1a6fd4,var(--blue));color:#fff;border-color:var(--blue);}
+.btn-green{background:linear-gradient(135deg,#059669,var(--green));color:#fff;border-color:var(--green);}
+.btn-red{background:rgba(248,113,113,.1);color:var(--red);border-color:rgba(248,113,113,.3);}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--muted);font-size:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.otp-row{display:flex;gap:8px;}
+.otp-row .inp{text-align:center;font-size:22px;font-weight:800;padding:12px 0;letter-spacing:6px;}
+
+/* ── Install banner ── */
+#install-bar{background:linear-gradient(135deg,#0d2a4a,#162130);border-bottom:1px solid var(--border);padding:10px 16px;display:none;align-items:center;gap:10px;}
+#install-bar.show{display:flex;}
+#install-bar span{flex:1;font-size:12px;}
+#install-bar b{color:var(--blue);}
+.ib-btn{background:var(--blue);color:#fff;border:none;border-radius:9px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.ib-x{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
+
+/* ── Header ── */
+#main-header{background:linear-gradient(135deg,#060e1a,#0f1923);padding:14px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;}
+.hdr-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#c06000);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.hdr-info{flex:1;}
+.hdr-title{font-weight:800;font-size:15px;}
+.hdr-sub{font-size:11px;color:var(--green);margin-top:1px;}
+.cart-btn{position:relative;background:rgba(240,180,41,.1);border:1px solid rgba(240,180,41,.3);border-radius:12px;padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--gold);}
+.cart-count{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+
+/* ── Location bar ── */
+#loc-bar{background:var(--card);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:8px;cursor:pointer;}
+#loc-bar .loc-icon{font-size:16px;flex-shrink:0;}
+#loc-bar .loc-text{flex:1;font-size:12px;color:var(--muted);}
+#loc-bar .loc-text b{color:var(--text);font-size:13px;}
+#loc-bar .loc-change{font-size:11px;color:var(--blue);font-weight:600;}
+
+/* ── Hero banner ── */
+.hero{background:linear-gradient(135deg,#0d2a4a,#162130);margin:14px;border-radius:18px;padding:20px;border:1px solid var(--border);position:relative;overflow:hidden;}
+.hero::after{content:'🍱';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:64px;opacity:.15;}
+.hero-tag{background:rgba(240,180,41,.15);border:1px solid rgba(240,180,41,.3);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--gold);font-weight:700;display:inline-block;margin-bottom:10px;}
+.hero-title{font-size:20px;font-weight:800;line-height:1.3;margin-bottom:6px;}
+.hero-sub{font-size:13px;color:var(--muted);}
+
+/* ── Category pills ── */
+.cat-scroll{display:flex;gap:8px;padding:0 14px;overflow-x:auto;scrollbar-width:none;margin-bottom:4px;}
+.cat-scroll::-webkit-scrollbar{display:none;}
+.cat-pill{flex-shrink:0;border:1px solid var(--border);background:var(--card);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .18s;}
+.cat-pill.active{background:rgba(240,180,41,.12);border-color:rgba(240,180,41,.4);color:var(--gold);}
+
+/* ── Section ── */
+.sec-label{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:14px 16px 8px;}
+
+/* ── Menu item card ── */
+.menu-item{background:var(--card);border-radius:16px;margin:0 14px 10px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:14px;transition:border-color .2s;}
+.menu-item:hover{border-color:var(--gold);}
+.menu-emoji{width:56px;height:56px;border-radius:14px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+.menu-info{flex:1;min-width:0;}
+.menu-name{font-weight:700;font-size:15px;}
+.menu-desc{font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.menu-price{font-size:16px;font-weight:800;color:var(--gold);margin-top:4px;}
+.menu-avail{font-size:10px;color:var(--red);margin-top:2px;}
+.add-btn{background:var(--gold);border:none;border-radius:10px;width:36px;height:36px;font-size:22px;cursor:pointer;color:#000;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;}
+.qty-ctrl{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.qty-btn{width:30px;height:30px;border-radius:8px;border:none;font-size:16px;cursor:pointer;font-weight:800;}
+.qty-minus{background:rgba(59,158,255,.1);color:var(--blue);}
+.qty-plus{background:var(--gold);color:#000;}
+.qty-num{font-size:15px;font-weight:800;width:20px;text-align:center;}
+
+/* ── Cart sheet ── */
+#cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+#cart-overlay.open{display:flex;}
+#cart-sheet{width:100%;max-width:480px;background:var(--bg);border-radius:22px 22px 0 0;max-height:88vh;display:flex;flex-direction:column;animation:slideUp .3s cubic-bezier(.32,.72,0,1);}
+.sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;}
+.sheet-header{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:space-between;}
+.sheet-body{flex:1;overflow-y:auto;padding:14px;}
+.sheet-footer{padding:14px 18px;border-top:1px solid var(--border);}
+.close-x{background:rgba(255,255,255,.06);border:none;color:var(--muted);font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+
+/* ── Cart item ── */
+.cart-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.cart-item:last-child{border:none;}
+.ci-emoji{font-size:22px;}
+.ci-info{flex:1;}.ci-name{font-weight:700;font-size:14px;}.ci-price{font-size:12px;color:var(--gold);}
+.ci-total{font-weight:800;font-size:15px;color:var(--gold);}
+
+/* ── Address modal ── */
+#addr-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:none;align-items:flex-end;justify-content:center;}
+#addr-overlay.open{display:flex;}
+#addr-sheet{width:100%;max-width:480px;background:var(--bg);border-radius:22px 22px 0 0;padding:20px;animation:slideUp .28s cubic-bezier(.32,.72,0,1);max-height:90vh;overflow-y:auto;}
+#addr-sheet h3{font-size:16px;font-weight:800;margin-bottom:16px;}
+
+/* ── Map placeholder ── */
+.map-box{background:var(--card);border:1px solid var(--border);border-radius:14px;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;cursor:pointer;transition:border-color .2s;}
+.map-box:hover{border-color:var(--blue);}
+.map-box.located{border-color:var(--green);}
+.map-pin{font-size:32px;}
+.map-coords{font-size:11px;color:var(--muted);}
+
+/* ── Order success ── */
+#success-screen{background:var(--bg);padding:32px 24px;text-align:center;display:none;}
+#success-screen.active{display:block;}
+.success-icon{font-size:72px;margin-bottom:16px;}
+.success-title{font-size:24px;font-weight:800;margin-bottom:8px;color:var(--green);}
+.success-sub{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:24px;}
+.order-id-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:24px;}
+.order-id-label{font-size:12px;color:var(--muted);margin-bottom:4px;}
+.order-id-val{font-size:22px;font-weight:800;color:var(--gold);letter-spacing:2px;}
+
+/* ── Orders tab ── */
+.order-card{background:var(--card);border-radius:16px;margin:0 14px 10px;border:1px solid var(--border);padding:14px;}
+.order-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.order-num{font-weight:800;font-size:15px;}
+.order-status{font-size:11px;font-weight:700;border-radius:20px;padding:3px 10px;}
+.status-pending{background:rgba(251,191,36,.12);color:var(--gold);}
+.status-confirmed{background:rgba(59,158,255,.12);color:var(--blue);}
+.status-delivered{background:rgba(52,211,153,.12);color:var(--green);}
+.status-cancelled{background:rgba(248,113,113,.1);color:var(--red);}
+.order-items{font-size:12px;color:var(--muted);margin-bottom:6px;}
+.order-total{font-size:14px;font-weight:800;color:var(--gold);}
+.order-time{font-size:11px;color:var(--muted);}
+
+/* ── Bottom nav ── */
+#bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#060d18;border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);}
+.bnav-btn{flex:1;border:none;background:none;padding:10px 0 8px;cursor:pointer;color:var(--muted);position:relative;}
+.bnav-btn.active{color:var(--gold);}
+.bnav-bar{position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:var(--gold);border-radius:0 0 3px 3px;display:none;}
+.bnav-btn.active .bnav-bar{display:block;}
+.bnav-icon{font-size:20px;}.bnav-label{font-size:10px;margin-top:2px;}
+.bnav-btn.active .bnav-label{font-weight:700;}
+
+/* ── Toast ── */
+#toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#0c1e35;color:var(--text);padding:10px 22px;border-radius:24px;font-size:13px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.5);border:1px solid var(--border);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .3s;}
+#toast.show{opacity:1;}
+
+/* ── Profile ── */
+.profile-card{background:var(--card);border-radius:16px;margin:14px;padding:20px;border:1px solid var(--border);}
+.profile-avatar{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--gold),#c06000);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px;}
+.profile-name{text-align:center;font-weight:800;font-size:18px;}
+.profile-phone{text-align:center;font-size:13px;color:var(--muted);margin-top:4px;}
+.menu-link{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--card);border-radius:14px;margin:0 14px 8px;border:1px solid var(--border);cursor:pointer;}
+.menu-link-icon{font-size:20px;}
+.menu-link-text{flex:1;font-weight:600;font-size:14px;}
+.menu-link-arrow{color:var(--muted);}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:40px 24px;color:var(--muted);}
+.empty-icon{font-size:48px;margin-bottom:12px;}
+.empty-text{font-size:14px;}
+
+/* Tabs content */
+#tab-menu{padding-bottom:90px;}
+#tab-orders{padding:14px 0 90px;}
+#tab-profile{padding:14px 0 90px;}
+</style>
+</head>
+<body>
+
+<!-- Install Banner -->
+<div id="install-bar">
+  <span>📱 <b>ঘরের স্বাদ</b> App install করুন!</span>
+  <button class="ib-btn" onclick="doInstall()">Install</button>
+  <button class="ib-x" onclick="this.parentElement.classList.remove('show')">✕</button>
+</div>
+
+<!-- Splash -->
+<div class="screen active" id="splash">
+  <div class="splash-logo">🍱</div>
+  <div class="splash-title">ঘরের স্বাদ</div>
+  <div class="splash-sub">তাজা ঘরের রান্না, দরজায় পৌঁছে দেওয়া</div>
+  <div class="spinner" style="margin-top:8px;"></div>
+</div>
+
+<!-- Auth Screen -->
+<div class="screen" id="auth-screen">
+  <div id="auth-step-phone">
+    <div class="auth-logo">🍱</div>
+    <div class="auth-title">স্বাগতম!</div>
+    <div class="auth-sub">অর্ডার করতে আপনার মোবাইল নম্বর দিন।<br>OTP পাঠানো হবে।</div>
+    <div style="padding:0 24px;">
+      <div class="field">
+        <div class="label">মোবাইল নম্বর</div>
+        <input type="tel" class="inp" id="auth-phone" placeholder="01XXXXXXXXX" maxlength="11">
+      </div>
+      <div class="field">
+        <div class="label">আপনার নাম</div>
+        <input type="text" class="inp" id="auth-name" placeholder="নাম লিখুন...">
+      </div>
+      <button class="btn btn-gold" id="send-otp-btn" onclick="sendOTP()" style="margin-top:4px;">পরবর্তী →</button>
+      <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6;">আপনার নম্বর শুধু delivery-র কাজে ব্যবহার হবে</div>
+    </div>
+  </div>
+  <div id="auth-step-otp" style="display:none;">
+    <div class="auth-logo">🔐</div>
+    <div class="auth-title">OTP যাচাই</div>
+    <div class="auth-sub" id="otp-sub">আপনার নম্বরে OTP পাঠানো হয়েছে</div>
+    <div style="padding:0 24px;">
+      <div class="field">
+        <div class="label">6-সংখ্যার OTP</div>
+        <input type="text" class="inp otp-row" id="otp-input" placeholder="• • • • • •" maxlength="6" inputmode="numeric" style="text-align:center;font-size:22px;font-weight:800;letter-spacing:8px;">
+      </div>
+      <button class="btn btn-gold" id="verify-otp-btn" onclick="verifyOTP()">যাচাই করুন ✓</button>
+      <button class="btn btn-ghost" onclick="showPhoneStep()" style="margin-top:8px;">← পরিবর্তন করুন</button>
+      <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;">
+        Demo মোডে: যেকোনো 6 সংখ্যা দিন
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div class="screen" id="main-screen">
+  <!-- Header -->
+  <div id="main-header">
+    <div class="hdr-logo">🍱</div>
+    <div class="hdr-info">
+      <div class="hdr-title">ঘরের স্বাদ</div>
+      <div class="hdr-sub">● এখন অর্ডার নেওয়া হচ্ছে</div>
+    </div>
+    <button class="cart-btn" onclick="openCart()">
+      🛒 <span id="cart-label">কার্ট</span>
+      <div class="cart-count" id="cart-count" style="display:none;">0</div>
+    </button>
+  </div>
+
+  <!-- Location bar -->
+  <div id="loc-bar" onclick="openAddress()">
+    <span class="loc-icon">📍</span>
+    <div class="loc-text"><b id="loc-short">লোকেশন সেট করুন</b><br><span id="loc-full">ট্যাপ করে আপনার ঠিকানা দিন</span></div>
+    <span class="loc-change">বদলান</span>
+  </div>
+
+  <!-- Tab contents -->
+  <div id="tab-menu">
+    <!-- Hero -->
+    <div class="hero anim">
+      <div class="hero-tag">🔥 আজকের স্পেশাল</div>
+      <div class="hero-title">তাজা ঘরের রান্না<br>সরাসরি আপনার দরজায়</div>
+      <div class="hero-sub">প্রতিদিন সকাল ৭টা — রাত ১০টা</div>
+    </div>
+
+    <!-- Categories -->
+    <div class="cat-scroll" id="cat-list"></div>
+
+    <!-- Menu items -->
+    <div class="sec-label">মেনু</div>
+    <div id="menu-list"></div>
+  </div>
+
+  <div id="tab-orders" style="display:none;">
+    <div class="sec-label">আমার অর্ডার</div>
+    <div id="order-list"></div>
+  </div>
+
+  <div id="tab-profile" style="display:none;">
+    <div class="profile-card">
+      <div class="profile-avatar">👤</div>
+      <div class="profile-name" id="prof-name">—</div>
+      <div class="profile-phone" id="prof-phone">—</div>
+    </div>
+    <div class="menu-link" onclick="openAddress()">
+      <span class="menu-link-icon">📍</span>
+      <span class="menu-link-text">আমার ঠিকানা</span>
+      <span class="menu-link-arrow">›</span>
+    </div>
+    <div class="menu-link" onclick="showTab('orders')">
+      <span class="menu-link-icon">📦</span>
+      <span class="menu-link-text">আমার অর্ডার</span>
+      <span class="menu-link-arrow">›</span>
+    </div>
+    <div class="menu-link" onclick="logout()" style="margin-top:20px;">
+      <span class="menu-link-icon">🚪</span>
+      <span class="menu-link-text" style="color:var(--red);">লগ আউট</span>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div id="bnav">
+    <button class="bnav-btn active" id="nb-menu" onclick="showTab('menu')">
+      <div class="bnav-bar"></div><div class="bnav-icon">🏠</div><div class="bnav-label">মেনু</div>
+    </button>
+    <button class="bnav-btn" id="nb-orders" onclick="showTab('orders')">
+      <div class="bnav-bar"></div><div class="bnav-icon">📦</div><div class="bnav-label">অর্ডার</div>
+    </button>
+    <button class="bnav-btn" id="nb-profile" onclick="showTab('profile')">
+      <div class="bnav-bar"></div><div class="bnav-icon">👤</div><div class="bnav-label">প্রোফাইল</div>
+    </button>
+  </div>
+</div>
+
+<!-- Cart Sheet -->
+<div id="cart-overlay" onclick="closeCart()">
+  <div id="cart-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      🛒 আমার কার্ট
+      <button class="close-x" onclick="closeCart()">✕</button>
+    </div>
+    <div class="sheet-body" id="cart-body"></div>
+    <div class="sheet-footer">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span style="font-size:14px;color:var(--muted);">মোট</span>
+        <span style="font-size:20px;font-weight:800;color:var(--gold);" id="cart-total">৳০</span>
+      </div>
+      <button class="btn btn-gold" onclick="proceedOrder()">অর্ডার করুন →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Address Sheet -->
+<div id="addr-overlay" onclick="closeAddr()">
+  <div id="addr-sheet" onclick="event.stopPropagation()">
+    <h3>📍 ডেলিভারি ঠিকানা</h3>
+
+    <!-- Map box -->
+    <div class="map-box" id="map-box" onclick="getLocation()">
+      <div class="map-pin" id="map-pin">📍</div>
+      <div style="font-size:13px;font-weight:600;" id="map-text">GPS থেকে লোকেশন নিন</div>
+      <div class="map-coords" id="map-coords"></div>
+    </div>
+
+    <div class="field">
+      <div class="label">বিস্তারিত ঠিকানা *</div>
+      <textarea class="inp" id="addr-detail" placeholder="বাড়ি নম্বর, রাস্তা, এলাকা..." rows="3" style="resize:none;line-height:1.6;"></textarea>
+    </div>
+    <div class="field">
+      <div class="label">ল্যান্ডমার্ক (ঐচ্ছিক)</div>
+      <input type="text" class="inp" id="addr-landmark" placeholder="কাছের মসজিদ, স্কুল, দোকান...">
+    </div>
+    <button class="btn btn-green" onclick="saveAddress()" style="margin-bottom:8px;">✓ ঠিকানা সংরক্ষণ করুন</button>
+    <button class="btn btn-ghost" onclick="closeAddr()">বাতিল</button>
+  </div>
+</div>
+
+<!-- Order Success -->
+<div id="success-screen">
+  <div class="success-icon">🎉</div>
+  <div class="success-title">অর্ডার হয়েছে!</div>
+  <div class="success-sub">আপনার অর্ডার পেয়েছি।<br>শীঘ্রই ডেলিভারি করা হবে।</div>
+  <div class="order-id-box">
+    <div class="order-id-label">অর্ডার নম্বর</div>
+    <div class="order-id-val" id="success-order-id">—</div>
+  </div>
+  <button class="btn btn-gold" onclick="backToMenu()">মেনুতে ফিরুন</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── CONFIG ── (injected at build time)
+const SB_URL = '__SUPABASE_URL__';
+const SB_KEY = '__SUPABASE_KEY__';
+
+// ── State ──
+let currentUser = null;
+let cart = {}; // { itemId: qty }
+let menuItems = [];
+let userAddress = null; // { lat, lng, detail, landmark }
+let deferredInstall = null;
+let selectedCat = 'all';
+
+// ── PWA ──
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredInstall = e;
+  document.getElementById('install-bar').classList.add('show');
+});
+async function doInstall() {
+  if (deferredInstall) { await deferredInstall.prompt(); deferredInstall = null; document.getElementById('install-bar').classList.remove('show'); }
+}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+
+// ── Supabase ──
+function sbH() { return { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Prefer': 'return=representation' }; }
+async function sbGet(t, q = '') { const r = await fetch(`${SB_URL}/rest/v1/${t}?${q}`, { headers: sbH() }); if (!r.ok) throw new Error(await r.text()); return r.json(); }
+async function sbPost(t, d) { const r = await fetch(`${SB_URL}/rest/v1/${t}`, { method: 'POST', headers: sbH(), body: JSON.stringify(d) }); if (!r.ok) throw new Error(await r.text()); return r.json(); }
+
+// ── Helpers ──
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function showToast(msg, dur = 2400) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), dur); }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); const el = document.getElementById(id); if (el) el.classList.add('active'); }
+function showTab(name) {
+  ['menu', 'orders', 'profile'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === name ? '' : 'none';
+    document.getElementById('nb-' + t).classList.toggle('active', t === name);
+  });
+  if (name === 'orders') loadOrders();
+}
+
+// ── Auth ──
+function showPhoneStep() { document.getElementById('auth-step-phone').style.display = ''; document.getElementById('auth-step-otp').style.display = 'none'; }
+
+async function sendOTP() {
+  const phone = document.getElementById('auth-phone').value.trim();
+  const name = document.getElementById('auth-name').value.trim();
+  if (!phone || phone.length < 11) { showToast('সঠিক মোবাইল নম্বর দিন'); return; }
+  if (!name) { showToast('নাম দিন'); return; }
+  localStorage.setItem('_pending_phone', phone);
+  localStorage.setItem('_pending_name', name);
+  document.getElementById('otp-sub').textContent = `${phone} নম্বরে OTP পাঠানো হয়েছে`;
+  document.getElementById('auth-step-phone').style.display = 'none';
+  document.getElementById('auth-step-otp').style.display = '';
+  // In production: send real OTP via SMS API. Demo: accept any 6 digits.
+  showToast('📲 Demo মোড — যেকোনো 6 সংখ্যা দিন');
+}
+
+async function verifyOTP() {
+  const otp = document.getElementById('otp-input').value.trim();
+  if (otp.length !== 6) { showToast('6 সংখ্যার OTP দিন'); return; }
+  const btn = document.getElementById('verify-otp-btn');
+  btn.disabled = true; btn.textContent = '⏳ যাচাই হচ্ছে...';
+  const phone = localStorage.getItem('_pending_phone');
+  const name = localStorage.getItem('_pending_name');
+  try {
+    // Check if user exists
+    let users = await sbGet('gs_customers', `phone=eq.${encodeURIComponent(phone)}&select=*`);
+    let user;
+    if (users.length > 0) {
+      user = users[0];
+    } else {
+      const [newUser] = await sbPost('gs_customers', { id: uid(), phone, name, created_at: new Date().toISOString() });
+      user = newUser;
+    }
+    currentUser = user;
+    localStorage.setItem('gs_user', JSON.stringify(user));
+    initApp();
+  } catch (e) {
+    showToast('❌ সমস্যা হয়েছে, আবার চেষ্টা করুন');
+  }
+  btn.disabled = false; btn.textContent = 'যাচাই করুন ✓';
+}
+
+function logout() {
+  if (!confirm('লগ আউট করবেন?')) return;
+  localStorage.removeItem('gs_user');
+  currentUser = null; cart = {};
+  showScreen('auth-screen');
+}
+
+// ── Init ──
+async function initApp() {
+  showScreen('main-screen');
+  document.getElementById('prof-name').textContent = currentUser.name || '—';
+  document.getElementById('prof-phone').textContent = currentUser.phone || '—';
+  // Load saved address
+  const savedAddr = localStorage.getItem('gs_addr');
+  if (savedAddr) { userAddress = JSON.parse(savedAddr); updateLocBar(); }
+  await loadMenu();
+  // Poll for order status updates
+  setInterval(loadOrders, 15000);
+}
+
+// ── Menu ──
+async function loadMenu() {
+  try {
+    menuItems = await sbGet('gs_menu_items', 'select=*&order=category.asc,sort_order.asc');
+    renderCategories();
+    renderMenu();
+  } catch {
+    // Demo items if DB not set up
+    menuItems = [
+      { id: 'demo1', name: 'ভাত ও ডাল', description: 'গরম ভাত সাথে মসুর ডাল', price: 60, category: 'ভাত', emoji: '🍚', available: true, sort_order: 1 },
+      { id: 'demo2', name: 'মুরগির তরকারি', description: 'দেশি মুরগির ঝোল, সাথে ভাত', price: 120, category: 'তরকারি', emoji: '🍗', available: true, sort_order: 2 },
+      { id: 'demo3', name: 'মাছ ভাজা', description: 'তাজা রুই মাছের ভাজা', price: 80, category: 'মাছ', emoji: '🐟', available: true, sort_order: 3 },
+      { id: 'demo4', name: 'সবজি ভাজি', description: 'মিশ্র সবজির ভাজি', price: 40, category: 'সবজি', emoji: '🥬', available: true, sort_order: 4 },
+      { id: 'demo5', name: 'খিচুড়ি', description: 'মসলাদার গরম খিচুড়ি', price: 70, category: 'ভাত', emoji: '🫕', available: true, sort_order: 5 },
+      { id: 'demo6', name: 'পরোটা', description: 'মচমচে পরোটা (৩টি)', price: 30, category: 'রুটি', emoji: '🫓', available: true, sort_order: 6 },
+    ];
+    renderCategories();
+    renderMenu();
+  }
+}
+
+function renderCategories() {
+  const cats = ['all', ...new Set(menuItems.map(i => i.category))];
+  const catNames = { all: '🍽 সব' };
+  document.getElementById('cat-list').innerHTML = cats.map(c => `
+    <div class="cat-pill ${c === selectedCat ? 'active' : ''}" onclick="filterCat('${c}')">
+      ${catNames[c] || c}
+    </div>`).join('');
+}
+
+function filterCat(cat) {
+  selectedCat = cat;
+  renderCategories();
+  renderMenu();
+}
+
+function renderMenu() {
+  const items = selectedCat === 'all' ? menuItems : menuItems.filter(i => i.category === selectedCat);
+  document.getElementById('menu-list').innerHTML = items.map(item => {
+    const qty = cart[item.id] || 0;
+    return `<div class="menu-item anim">
+      <div class="menu-emoji">${esc(item.emoji || '🍽')}</div>
+      <div class="menu-info">
+        <div class="menu-name">${esc(item.name)}</div>
+        ${item.description ? `<div class="menu-desc">${esc(item.description)}</div>` : ''}
+        <div class="menu-price">৳${item.price}</div>
+        ${!item.available ? '<div class="menu-avail">এখন পাওয়া যাচ্ছে না</div>' : ''}
+      </div>
+      ${item.available ? (qty > 0 ?
+        `<div class="qty-ctrl">
+          <button class="qty-btn qty-minus" onclick="updateCart('${item.id}', -1)">−</button>
+          <div class="qty-num">${qty}</div>
+          <button class="qty-btn qty-plus" onclick="updateCart('${item.id}', 1)">+</button>
+        </div>` :
+        `<button class="add-btn" onclick="updateCart('${item.id}', 1)">+</button>`
+      ) : ''}
+    </div>`;
+  }).join('') || '<div class="empty"><div class="empty-icon">🍽</div><div class="empty-text">এই ক্যাটাগরিতে কিছু নেই</div></div>';
+}
+
+// ── Cart ──
+function updateCart(id, delta) {
+  cart[id] = Math.max(0, (cart[id] || 0) + delta);
+  if (cart[id] === 0) delete cart[id];
+  updateCartBadge();
+  renderMenu();
+}
+
+function updateCartBadge() {
+  const total = Object.values(cart).reduce((s, q) => s + q, 0);
+  const badge = document.getElementById('cart-count');
+  badge.textContent = total;
+  badge.style.display = total > 0 ? 'flex' : 'none';
+  document.getElementById('cart-label').textContent = total > 0 ? `${total}টি` : 'কার্ট';
+}
+
+function openCart() {
+  const keys = Object.keys(cart);
+  if (keys.length === 0) { showToast('কার্ট খালি — আগে খাবার যোগ করুন'); return; }
+  let total = 0;
+  document.getElementById('cart-body').innerHTML = keys.map(id => {
+    const item = menuItems.find(i => i.id === id);
+    if (!item) return '';
+    const subtotal = item.price * cart[id];
+    total += subtotal;
+    return `<div class="cart-item">
+      <div class="ci-emoji">${esc(item.emoji || '🍽')}</div>
+      <div class="ci-info">
+        <div class="ci-name">${esc(item.name)}</div>
+        <div class="ci-price">${cart[id]} × ৳${item.price}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="qty-ctrl">
+          <button class="qty-btn qty-minus" onclick="updateCart('${id}',-1);openCart();">−</button>
+          <div class="qty-num">${cart[id]}</div>
+          <button class="qty-btn qty-plus" onclick="updateCart('${id}',1);openCart();">+</button>
+        </div>
+        <div class="ci-total">৳${subtotal}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('cart-total').textContent = `৳${total}`;
+  document.getElementById('cart-overlay').classList.add('open');
+}
+
+function closeCart() { document.getElementById('cart-overlay').classList.remove('open'); }
+
+// ── Address ──
+function openAddress() {
+  if (userAddress) {
+    document.getElementById('addr-detail').value = userAddress.detail || '';
+    document.getElementById('addr-landmark').value = userAddress.landmark || '';
+    if (userAddress.lat) {
+      document.getElementById('map-coords').textContent = `${userAddress.lat.toFixed(5)}, ${userAddress.lng.toFixed(5)}`;
+      document.getElementById('map-text').textContent = '✓ লোকেশন পাওয়া গেছে';
+      document.getElementById('map-box').classList.add('located');
+      document.getElementById('map-pin').textContent = '✅';
+    }
+  }
+  document.getElementById('addr-overlay').classList.add('open');
+}
+
+function closeAddr() { document.getElementById('addr-overlay').classList.remove('open'); }
+
+function getLocation() {
+  document.getElementById('map-text').textContent = '📡 GPS খুঁজছে...';
+  document.getElementById('map-coords').textContent = '';
+  if (!navigator.geolocation) { showToast('GPS সাপোর্ট নেই'); return; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    userAddress = userAddress || {};
+    userAddress.lat = pos.coords.latitude;
+    userAddress.lng = pos.coords.longitude;
+    document.getElementById('map-coords').textContent = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+    document.getElementById('map-text').textContent = '✓ লোকেশন পাওয়া গেছে';
+    document.getElementById('map-pin').textContent = '✅';
+    document.getElementById('map-box').classList.add('located');
+    showToast('✓ GPS লোকেশন পাওয়া গেছে');
+  }, () => {
+    document.getElementById('map-text').textContent = '❌ GPS পাওয়া যায়নি — ম্যানুয়াল ঠিকানা দিন';
+    showToast('GPS অনুমতি দিন অথবা ম্যানুয়াল ঠিকানা দিন');
+  });
+}
+
+function saveAddress() {
+  const detail = document.getElementById('addr-detail').value.trim();
+  if (!detail) { showToast('বিস্তারিত ঠিকানা দিন'); return; }
+  userAddress = userAddress || {};
+  userAddress.detail = detail;
+  userAddress.landmark = document.getElementById('addr-landmark').value.trim();
+  localStorage.setItem('gs_addr', JSON.stringify(userAddress));
+  updateLocBar();
+  closeAddr();
+  showToast('✓ ঠিকানা সংরক্ষিত');
+}
+
+function updateLocBar() {
+  if (!userAddress) return;
+  document.getElementById('loc-short').textContent = userAddress.detail ? userAddress.detail.slice(0, 30) + (userAddress.detail.length > 30 ? '...' : '') : 'ঠিকানা সেট আছে';
+  document.getElementById('loc-full').textContent = userAddress.lat ? `📡 GPS: ${userAddress.lat.toFixed(4)}, ${userAddress.lng.toFixed(4)}` : 'ম্যানুয়াল ঠিকানা';
+}
+
+// ── Place Order ──
+function proceedOrder() {
+  if (!userAddress || !userAddress.detail) {
+    closeCart();
+    showToast('আগে ঠিকানা দিন');
+    setTimeout(() => openAddress(), 500);
+    return;
+  }
+  placeOrder();
+}
+
+async function placeOrder() {
+  const items = Object.entries(cart).map(([id, qty]) => {
+    const item = menuItems.find(i => i.id === id);
+    return { id, name: item?.name, price: item?.price, qty, subtotal: (item?.price || 0) * qty };
+  });
+  const total = items.reduce((s, i) => s + i.subtotal, 0);
+  const orderId = 'GS' + Date.now().toString(36).toUpperCase();
+  const orderData = {
+    id: orderId,
+    customer_id: currentUser?.id,
+    customer_name: currentUser?.name,
+    customer_phone: currentUser?.phone,
+    items: JSON.stringify(items),
+    total,
+    status: 'pending',
+    address_detail: userAddress.detail,
+    address_landmark: userAddress.landmark || null,
+    address_lat: userAddress.lat || null,
+    address_lng: userAddress.lng || null,
+    created_at: new Date().toISOString()
+  };
+  try {
+    await sbPost('gs_orders', orderData);
+    cart = {};
+    updateCartBadge();
+    renderMenu();
+    closeCart();
+    document.getElementById('success-order-id').textContent = orderId;
+    document.getElementById('main-screen').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+    showToast('✓ অর্ডার সম্পন্ন!', 3000);
+  } catch (e) {
+    showToast('❌ অর্ডার হয়নি — আবার চেষ্টা করুন');
+  }
+}
+
+function backToMenu() {
+  document.getElementById('success-screen').style.display = 'none';
+  document.getElementById('main-screen').style.display = '';
+  showTab('orders');
+}
+
+// ── Orders ──
+async function loadOrders() {
+  if (!currentUser) return;
+  try {
+    const orders = await sbGet('gs_orders', `customer_id=eq.${currentUser.id}&select=*&order=created_at.desc`);
+    const list = document.getElementById('order-list');
+    if (!list) return;
+    if (!orders.length) {
+      list.innerHTML = '<div class="empty"><div class="empty-icon">📦</div><div class="empty-text">এখনো কোনো অর্ডার নেই</div></div>';
+      return;
+    }
+    const statusMap = { pending: ['⏳ অপেক্ষায়', 'status-pending'], confirmed: ['✓ নিশ্চিত', 'status-confirmed'], preparing: ['👨‍🍳 তৈরি হচ্ছে', 'status-confirmed'], delivered: ['✅ ডেলিভারি হয়েছে', 'status-delivered'], cancelled: ['❌ বাতিল', 'status-cancelled'] };
+    list.innerHTML = orders.map(o => {
+      const [statusText, statusClass] = statusMap[o.status] || ['অজানা', ''];
+      const items = JSON.parse(o.items || '[]');
+      return `<div class="order-card anim">
+        <div class="order-card-top">
+          <div class="order-num">#${o.id}</div>
+          <div class="order-status ${statusClass}">${statusText}</div>
+        </div>
+        <div class="order-items">${items.map(i => `${i.qty}× ${i.name}`).join(', ')}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="order-total">৳${o.total}</div>
+          <div class="order-time">${new Date(o.created_at).toLocaleString('bn-BD')}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch {}
+}
+
+// ── Boot ──
+(function boot() {
+  const saved = localStorage.getItem('gs_user');
+  if (saved) {
+    try { currentUser = JSON.parse(saved); setTimeout(initApp, 1200); }
+    catch { setTimeout(() => showScreen('auth-screen'), 1200); }
+  } else {
+    setTimeout(() => showScreen('auth-screen'), 1200);
+  }
+})();
+</script>
+</body>
+</html>
