@@ -1,7 +1,0 @@
-{
-  "name": "ghorer-swad-food-platform",
-  "version": "1.0.0",
-  "scripts": {
-    "build": "node build.js"
-  }
-}
