@@ -1,5 +1,1 @@
-{
-  "buildCommand": "node build.js",
-  "outputDirectory": "public",
-  "framework": null
-}
+{ "buildCommand": "node build.js", "outputDirectory": "public", "framework": null }
