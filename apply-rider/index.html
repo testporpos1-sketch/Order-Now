@@ -1,1 +1,97 @@
-
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#070d1a">
+<title>ржШрж░рзЗрж░ рж╕рзНржмрж╛ржж тАФ Rider Apply</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070d1a;--card:#0d1b2e;--border:#1a3347;--gold:#f0b429;--green:#34d399;--blue:#3b9eff;--text:#e2eaf4;--muted:#4a6a88;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;padding:24px 20px 40px;}
+input,select,button,textarea{font-family:inherit;}
+.hero{text-align:center;padding:28px 0 20px;}
+.logo{width:80px;height:80px;border-radius:22px;background:linear-gradient(135deg,#059669,var(--green));display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 16px;box-shadow:0 8px 30px rgba(52,211,153,.3);}
+.hero-title{font-size:26px;font-weight:800;margin-bottom:6px;}
+.hero-sub{font-size:14px;color:var(--muted);line-height:1.7;}
+.benefits{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;}
+.benefit{background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;}
+.b-icon{font-size:26px;margin-bottom:6px;}
+.b-title{font-weight:700;font-size:13px;}
+.b-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+.form-card{background:var(--card);border-radius:20px;padding:20px;border:1px solid var(--border);}
+.form-title{font-weight:800;font-size:17px;margin-bottom:16px;color:var(--green);}
+.inp{width:100%;background:#0a1525;border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:14px;transition:border-color .2s;}
+.inp:focus{outline:none;border-color:var(--blue);}
+.inp::placeholder{color:var(--muted);}
+.label{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:5px;}
+.field{margin-bottom:12px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.btn{border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;width:100%;background:linear-gradient(135deg,#059669,var(--green));color:#fff;margin-top:4px;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+#success{display:none;text-align:center;padding:40px 24px;}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0c1e35;color:var(--text);padding:10px 22px;border-radius:24px;font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,.5);border:1px solid var(--border);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .3s;max-width:90%;}
+#toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="logo">ЁЯЫ╡</div>
+  <div class="hero-title">Rider рж╣рж┐рж╕рзЗржмрзЗ ржпрзЛржЧ ржжрж┐ржи</div>
+  <div class="hero-sub">ржШрж░рзЗрж░ рж╕рзНржмрж╛ржж-ржПрж░ рж╕рж╛ржерзЗ ржХрж╛ржЬ ржХрж░рзБржи<br>ржирж┐ржЬрзЗрж░ рж╕ржоржпрж╝рзЗ, ржнрж╛рж▓рзЛ ржЖржпрж╝ ржХрж░рзБржи</div>
+</div>
+<div class="benefits">
+  <div class="benefit"><div class="b-icon">ЁЯТ░</div><div class="b-title">ржкрзНрж░рждрж┐ ржбрзЗрж▓рж┐ржнрж╛рж░рж┐</div><div class="b-sub">ржХржорж┐рж╢ржи ржкрж╛ржмрзЗржи</div></div>
+  <div class="benefit"><div class="b-icon">тП░</div><div class="b-title">ржирж┐ржЬрзЗрж░ рж╕ржоржпрж╝</div><div class="b-sub">ржпржЦржи ржЪрж╛ржи ржХрж╛ржЬ</div></div>
+  <div class="benefit"><div class="b-icon">ЁЯУ▒</div><div class="b-title">рж╕рж╣ржЬ App</div><div class="b-sub">рж╕ржм ржлрзЛржирзЗржЗ ржЪрж▓рзЗ</div></div>
+  <div class="benefit"><div class="b-icon">ЁЯЧ║я╕П</div><div class="b-title">Navigation</div><div class="b-sub">Maps рж╕рж╛ржкрзЛрж░рзНржЯ</div></div>
+</div>
+<div class="form-card" id="apply-form">
+  <div class="form-title">ЁЯУЭ Rider ржЖржмрзЗржжржи ржлрж░рзНржо</div>
+  <div class="grid2">
+    <div class="field"><div class="label">ржкрзБрж░рзЛ ржирж╛ржо *</div><input type="text" class="inp" id="f-name" placeholder="ржирж╛ржо"></div>
+    <div class="field"><div class="label">ржорзЛржмрж╛ржЗрж▓ *</div><input type="tel" class="inp" id="f-phone" placeholder="01XXXXXXXXX" maxlength="11"></div>
+  </div>
+  <div class="field"><div class="label">ржЗржорзЗржЗрж▓ (ржРржЪрзНржЫрж┐ржХ)</div><input type="email" class="inp" id="f-email" placeholder="email@example.com"></div>
+  <div class="field"><div class="label">ржпрж╛ржиржмрж╛рж╣ржи *</div>
+    <select class="inp" id="f-vehicle">
+      <option value="">ржмрзЗржЫрзЗ ржирж┐ржи...</option>
+      <option value="ржорзЛржЯрж░рж╕рж╛ржЗржХрзЗрж▓">ЁЯПНя╕П ржорзЛржЯрж░рж╕рж╛ржЗржХрзЗрж▓</option>
+      <option value="рж╕рж╛ржЗржХрзЗрж▓">ЁЯЪ▓ рж╕рж╛ржЗржХрзЗрж▓</option>
+      <option value="CNG/ржЕржЯрзЛ">ЁЯЫ║ CNG/ржЕржЯрзЛ</option>
+      <option value="ржкрж╛ржпрж╝рзЗ рж╣рзЗржБржЯрзЗ">ЁЯЪ╢ ржкрж╛ржпрж╝рзЗ рж╣рзЗржБржЯрзЗ</option>
+    </select>
+  </div>
+  <div class="grid2">
+    <div class="field"><div class="label">NID ржиржорзНржмрж░ *</div><input type="text" class="inp" id="f-nid" placeholder="NID"></div>
+    <div class="field"><div class="label">ржПрж▓рж╛ржХрж╛ *</div><input type="text" class="inp" id="f-area" placeholder="ржПрж▓рж╛ржХрж╛"></div>
+  </div>
+  <div class="field"><div class="label">ржмрж░рзНрждржорж╛ржи ржарж┐ржХрж╛ржирж╛ *</div><textarea class="inp" id="f-addr" rows="2" style="resize:none;line-height:1.6;" placeholder="ржарж┐ржХрж╛ржирж╛..."></textarea></div>
+  <div class="field"><div class="label">ржЕржнрж┐ржЬрзНржЮрждрж╛ (ржерж╛ржХрж▓рзЗ)</div><textarea class="inp" id="f-exp" rows="2" style="resize:none;line-height:1.6;" placeholder="ржЖржЧрзЗ ржХрзЛржерж╛ржУ delivery ржХрж░рзЗржЫрзЗржи?"></textarea></div>
+  <button class="btn" id="submit-btn" onclick="submitApply()">ЁЯУд ржЖржмрзЗржжржи ржЬржорж╛ ржжрж┐ржи</button>
+  <div style="text-align:center;margin-top:10px;font-size:12px;color:var(--muted);">ржЗрждрж┐ржоржзрзНржпрзЗ Rider? <a href="/rider/" style="color:var(--blue);">Login ржХрж░рзБржи тЖТ</a></div>
+</div>
+<div id="success" style="text-align:center;padding:40px 24px;">
+  <div style="font-size:72px;margin-bottom:16px;">ЁЯОЙ</div>
+  <div style="font-size:24px;font-weight:800;color:var(--green);margin-bottom:8px;">ржЖржмрзЗржжржи ржкрж╛ржУржпрж╝рж╛ ржЧрзЗржЫрзЗ!</div>
+  <div style="font-size:14px;color:var(--muted);line-height:1.8;">ржЖржкржирж╛рж░ ржЖржмрзЗржжржи ржпрж╛ржЪрж╛ржЗ ржХрж░рж╛ рж╣ржЪрзНржЫрзЗред<br>ржЕржирзБржорзЛржжржи рж╣рж▓рзЗ ржлрзЛржирзЗ ржЬрж╛ржирж╛ржирзЛ рж╣ржмрзЗред<br><br>ржзржирзНржпржмрж╛ржж! ЁЯЩП</div>
+</div>
+<div id="toast"></div>
+<script>
+const SB={url:'__SUPABASE_URL__',key:'__SUPABASE_KEY__'};
+function sbH(){return{'Content-Type':'application/json',apikey:SB.key,Authorization:`Bearer ${SB.key}`,Prefer:'return=representation'};}
+async function sbPost(t,d){const r=await fetch(`${SB.url}/rest/v1/${t}`,{method:'POST',headers:sbH(),body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function showToast(m,d=2600){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),d);}
+async function submitApply(){
+  const name=document.getElementById('f-name').value.trim(),phone=document.getElementById('f-phone').value.trim(),vehicle=document.getElementById('f-vehicle').value,nid=document.getElementById('f-nid').value.trim(),addr=document.getElementById('f-addr').value.trim();
+  if(!name||!phone||!vehicle||!nid||!addr){showToast('рж╕ржм рждрж╛рж░ржХрж╛ (*) ржлрж┐рж▓рзНржб ржкрзВрж░ржг ржХрж░рзБржи');return;}
+  if(phone.length<11){showToast('рж╕ржарж┐ржХ ржлрзЛржи ржиржорзНржмрж░ ржжрж┐ржи');return;}
+  const btn=document.getElementById('submit-btn');btn.disabled=true;btn.textContent='тП│ ржЬржорж╛ рж╣ржЪрзНржЫрзЗ...';
+  try{await sbPost('gs_rider_applications',{id:uid(),name,phone,email:document.getElementById('f-email').value.trim()||null,vehicle,nid_number:nid,address:addr,experience:document.getElementById('f-exp').value.trim()||null,status:'pending'});document.getElementById('apply-form').style.display='none';document.getElementById('success').style.display='block';}
+  catch{showToast('тЭМ рж╕ржорж╕рзНржпрж╛ рж╣ржпрж╝рзЗржЫрзЗ');btn.disabled=false;btn.textContent='ЁЯУд ржЖржмрзЗржжржи ржЬржорж╛ ржжрж┐ржи';}
+}
+</script>
+</body>
+</html>
