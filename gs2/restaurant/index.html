@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#080f18">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="/manifest.json">
+<title>ঘরের স্বাদ — Restaurant</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080f18;--card:#0e1c2b;--card2:#132233;--border:#1a3347;--gold:#f0b429;--blue:#3b9eff;--green:#34d399;--red:#f87171;--purple:#a78bfa;--text:#e2eaf4;--muted:#4a6a88;--orange:#fb923c;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:80px;}
+input,select,button,textarea{font-family:inherit;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue)!important;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+button:active{opacity:.8;transform:scale(.97);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes ring{0%,100%{transform:rotate(0)}15%,45%,75%{transform:rotate(-12deg)}30%,60%,90%{transform:rotate(12deg)}}
+@keyframes pulse-red{0%,100%{box-shadow:0 0 0 0 rgba(248,113,113,.5)}70%{box-shadow:0 0 0 20px rgba(248,113,113,0)}}
+.anim{animation:fadeUp .25s ease;}
+
+/* ALARM */
+#alarm{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
+#alarm.on{display:flex;}
+.alarm-bell{font-size:80px;animation:ring .6s linear infinite;}
+.alarm-title{font-size:26px;font-weight:800;color:var(--red);text-align:center;}
+.alarm-info{font-size:14px;color:var(--muted);text-align:center;}
+.alarm-stop{background:var(--red);color:#fff;border:none;border-radius:20px;padding:18px 48px;font-size:20px;font-weight:800;cursor:pointer;font-family:inherit;animation:pulse-red 1.5s infinite;}
+
+/* LOGIN */
+#login-wrap{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;}
+#login-wrap.hide{display:none;}
+.login-box{background:var(--card);border-radius:22px;padding:28px 24px;border:1px solid var(--border);width:100%;max-width:360px;}
+.login-logo{width:60px;height:60px;border-radius:18px;background:linear-gradient(135deg,#f0b429,#c06000);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 6px 24px rgba(240,180,41,.35);}
+.login-title{text-align:center;font-weight:800;font-size:20px;margin-bottom:4px;}
+.login-sub{text-align:center;font-size:12px;color:var(--muted);margin-bottom:22px;}
+
+/* HEADER */
+#hdr{background:linear-gradient(135deg,#060e1a,#0c1e35);padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;}
+.logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#f0b429,#c06000);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.hdt{flex:1;}.hdt .title{font-weight:800;font-size:15px;}.hdt .sub{font-size:11px;color:var(--muted);margin-top:1px;display:flex;align-items:center;gap:4px;}
+.sd{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.sd.ok{background:var(--green);}.sd.syncing{background:var(--gold);animation:spin 1s linear infinite;}.sd.err{background:var(--red);}
+.new-pill{background:var(--red);color:#fff;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:800;display:none;}
+.new-pill.show{display:block;}
+
+/* NAV */
+#nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#060d18;border-top:1px solid var(--border);display:flex;z-index:100;}
+.nb{flex:1;border:none;background:none;padding:10px 0 8px;cursor:pointer;color:var(--muted);transition:color .2s;position:relative;}
+.nb.active{color:var(--gold);}
+.nb-bar{position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:2px;background:var(--gold);border-radius:0 0 3px 3px;display:none;}
+.nb.active .nb-bar{display:block;}
+.nb-icon{font-size:20px;}.nb-lbl{font-size:10px;margin-top:2px;}.nb.active .nb-lbl{font-weight:700;}
+.nb-dot{position:absolute;top:6px;right:calc(50% - 16px);width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid #060d18;display:none;}
+.nb-dot.on{display:block;}
+
+/* CONTENT */
+#content{padding:14px 14px 0;}.tab{display:none;}.tab.active{display:block;}
+
+/* CARDS */
+.gcard{background:var(--card);border-radius:16px;padding:14px;border:1px solid var(--border);margin-bottom:10px;}
+.gcard-title{font-weight:700;font-size:13px;color:var(--blue);margin-bottom:10px;}
+.inp{width:100%;background:#0a1525;border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;transition:border-color .2s;}
+.inp::placeholder{color:var(--muted);}
+.label{font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600;}.field{margin-bottom:10px;}
+.btn{border:none;border-radius:12px;padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer;width:100%;text-align:center;transition:opacity .2s;}
+.btn-blue{background:linear-gradient(135deg,#1a6fd4,var(--blue));color:#fff;}
+.btn-gold{background:rgba(240,180,41,.12);color:var(--gold);border:1px solid rgba(240,180,41,.35);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
+.btn-green{background:linear-gradient(135deg,#059669,var(--green));color:#fff;}
+.btn-red{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.3);}
+.btn-orange{background:rgba(251,146,60,.12);color:var(--orange);border:1px solid rgba(251,146,60,.3);}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:9px;width:auto;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn-row{display:flex;gap:6px;}.btn-row .btn{flex:1;}
+
+/* PILLS */
+.pills{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.pill{border-radius:12px;padding:10px 6px;text-align:center;}.pill-val{font-size:18px;font-weight:800;}.pill-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* ORDER CARD */
+.ocard{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:14px;margin-bottom:10px;transition:border-color .3s;}
+.ocard.new{border-color:var(--red);background:rgba(248,113,113,.03);animation:fadeUp .4s ease;}
+.ocard.confirmed{border-color:rgba(59,158,255,.4);}
+.ocard.preparing{border-color:rgba(251,146,60,.4);}
+.ocard.ready{border-color:rgba(167,139,250,.4);}
+.ocard.delivered{border-color:rgba(52,211,153,.25);opacity:.75;}
+.ot{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.oid{font-weight:800;font-size:14px;color:var(--blue);}
+.otime{font-size:11px;color:var(--muted);}
+.spill{font-size:11px;font-weight:700;border-radius:20px;padding:3px 11px;}
+.sp-pending{background:rgba(248,113,113,.15);color:var(--red);}
+.sp-confirmed{background:rgba(59,158,255,.15);color:var(--blue);}
+.sp-preparing{background:rgba(251,146,60,.15);color:var(--orange);}
+.sp-ready{background:rgba(167,139,250,.15);color:var(--purple);}
+.sp-picked_up{background:rgba(59,158,255,.15);color:var(--blue);}
+.sp-delivered{background:rgba(52,211,153,.15);color:var(--green);}
+.sp-cancelled{background:rgba(255,255,255,.06);color:var(--muted);}
+.ocust{display:flex;align-items:center;gap:8px;background:var(--card2);border-radius:10px;padding:10px;margin-bottom:10px;}
+.cav{width:36px;height:36px;border-radius:10px;background:rgba(59,158,255,.1);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--blue);flex-shrink:0;}
+.cinfo{flex:1;}.cname{font-weight:700;font-size:14px;}.cphone{font-size:12px;color:var(--muted);}
+.oitems{margin-bottom:10px;}
+.oitem-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.oitem-row:last-child{border:none;}
+.oaddr{background:rgba(240,180,41,.05);border:1px solid rgba(240,180,41,.15);border-radius:10px;padding:10px;margin-bottom:10px;font-size:12px;}
+.oaddr-lbl{color:var(--gold);font-weight:700;margin-bottom:4px;}
+.oaddr-txt{color:var(--muted);line-height:1.6;}
+.ototal-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.oact{display:flex;gap:6px;flex-wrap:wrap;}
+.map-a{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--blue);text-decoration:none;background:rgba(59,158,255,.08);border-radius:7px;padding:4px 9px;margin-top:4px;}
+.edit-qty{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:7px 10px;font-size:12px;color:var(--red);cursor:pointer;display:flex;align-items:center;gap:5px;}
+
+/* MENU MGMT */
+.mitem{background:var(--card);border-radius:14px;padding:12px;border:1px solid var(--border);display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.mitem-img{width:50px;height:50px;border-radius:11px;object-fit:cover;background:var(--card2);flex-shrink:0;}
+.mitem-emoji{width:50px;height:50px;border-radius:11px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.mitem-info{flex:1;min-width:0;}.mitem-name{font-weight:700;font-size:14px;}.mitem-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.tslider{position:absolute;inset:0;background:var(--border);border-radius:24px;cursor:pointer;transition:.3s;}
+.toggle input:checked+.tslider{background:var(--green);}
+.tslider::before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;}
+.toggle input:checked+.tslider::before{transform:translateX(20px);}
+
+/* CHAT */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:none;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+.sheet{width:100%;max-width:480px;background:var(--bg);border-radius:22px 22px 0 0;max-height:88vh;display:flex;flex-direction:column;animation:slideUp .3s cubic-bezier(.32,.72,0,1);}
+.sh{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;flex-shrink:0;}
+.shdr{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.sbody{flex:1;overflow-y:auto;padding:12px;}
+.sfoot{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+.x{background:rgba(255,255,255,.08);border:none;color:var(--muted);font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.msg-wrap{display:flex;flex-direction:column;margin-bottom:10px;}
+.msg-wrap.me{align-items:flex-end;}.msg-wrap.them{align-items:flex-start;}
+.msg-sn{font-size:10px;color:var(--muted);margin-bottom:3px;padding:0 4px;}
+.msg-b{max-width:80%;border-radius:16px;padding:9px 13px;font-size:13px;line-height:1.5;}
+.msg-wrap.me .msg-b{background:linear-gradient(135deg,#1a6fd4,var(--blue));color:#fff;border-bottom-right-radius:4px;}
+.msg-wrap.them .msg-b{background:var(--card2);border-bottom-left-radius:4px;}
+.msg-t{font-size:10px;color:var(--muted);margin-top:3px;padding:0 4px;}
+.chat-inp{flex:1;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:10px 14px;color:var(--text);font-size:13px;resize:none;}
+.send-btn{background:var(--blue);border:none;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+
+/* RIDER ASSIGN */
+.rider-card{background:var(--card);border-radius:12px;padding:10px 12px;border:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .2s;margin-bottom:6px;}
+.rider-card:hover{border-color:var(--blue);}
+.rider-av{width:36px;height:36px;border-radius:10px;background:rgba(59,158,255,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+
+/* IMAGE UPLOAD */
+.img-upload{border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:10px;}
+.img-upload:hover{border-color:var(--blue);}
+.img-preview{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:10px;}
+
+/* EMPTY */
+.empty{text-align:center;color:var(--muted);font-size:13px;padding:28px 0;background:var(--card);border-radius:14px;border:1px solid var(--border);margin-bottom:8px;}
+
+/* TOAST */
+#toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#0c1e35;color:var(--text);padding:10px 22px;border-radius:24px;font-size:13px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.5);border:1px solid var(--border);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .3s;}
+#toast.show{opacity:1;}
+.sec-lbl{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;}
+.msel{display:flex;gap:8px;margin-bottom:10px;}.msel .inp{flex:1;}
+</style>
+</head>
+<body>
+
+<!-- ALARM -->
+<div id="alarm">
+  <div class="alarm-bell">🔔</div>
+  <div class="alarm-title">নতুন অর্ডার এসেছে!</div>
+  <div class="alarm-info" id="alarm-info">অপেক্ষায় আছে</div>
+  <button class="alarm-stop" onclick="stopAlarm()">✓ দেখেছি — Stop করুন</button>
+</div>
+
+<!-- LOGIN -->
+<div id="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">🍱</div>
+    <div class="login-title">Restaurant Panel</div>
+    <div class="login-sub">পাসওয়ার্ড দিয়ে প্রবেশ করুন</div>
+    <div class="field"><div class="label">পাসওয়ার্ড</div>
+      <input type="password" class="inp" id="pw" placeholder="পাসওয়ার্ড..." onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="btn btn-gold" onclick="login()" style="margin-top:4px;">প্রবেশ করুন</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div id="hdr">
+  <div class="logo">🍱</div>
+  <div class="hdt"><div class="title">Restaurant Panel</div><div class="sub"><div class="sd" id="sd"></div><span id="sl">সংযুক্ত হচ্ছে...</span></div></div>
+  <div class="new-pill" id="new-pill">🔴 নতুন!</div>
+</div>
+
+<!-- CONTENT -->
+<div id="content">
+
+  <!-- ORDERS TAB -->
+  <div class="tab active" id="tab-orders">
+    <div class="pills">
+      <div class="pill" style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);"><div class="pill-val" style="color:var(--red);" id="s-pend">0</div><div class="pill-lbl">অপেক্ষায়</div></div>
+      <div class="pill" style="background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);"><div class="pill-val" style="color:var(--orange);" id="s-act">0</div><div class="pill-lbl">চলছে</div></div>
+      <div class="pill" style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);"><div class="pill-val" style="color:var(--green);" id="s-bill">৳0</div><div class="pill-lbl">আজকের আয়</div></div>
+    </div>
+    <div class="msel"><select class="inp" id="o-filter" onchange="renderOrders()">
+      <option value="active">🟡 চলমান অর্ডার</option>
+      <option value="all">📋 সব অর্ডার</option>
+      <option value="delivered">✅ ডেলিভারি হয়েছে</option>
+    </select></div>
+    <div id="order-list"></div>
+  </div>
+
+  <!-- MENU TAB -->
+  <div class="tab" id="tab-menu">
+    <button class="btn btn-blue" onclick="openItemSheet(null)" style="margin-bottom:10px;">➕ নতুন আইটেম যোগ করুন</button>
+    <div class="sec-lbl">মেনু আইটেম</div>
+    <div id="menu-list"></div>
+  </div>
+
+  <!-- RIDERS TAB -->
+  <div class="tab" id="tab-riders">
+    <div class="sec-lbl">অনুমোদিত Rider</div>
+    <div id="rider-list"></div>
+    <div class="sec-lbl" style="margin-top:12px;">Rider আবেদন</div>
+    <div id="apply-list"></div>
+  </div>
+
+  <!-- REPORT TAB -->
+  <div class="tab" id="tab-report">
+    <div class="gcard"><div class="gcard-title">📊 আজকের সারসংক্ষেপ</div><div id="today-rep"></div></div>
+    <div class="gcard">
+      <div class="gcard-title">⚙️ সেটিংস</div>
+      <div class="field"><div class="label">শপ স্ট্যাটাস</div>
+        <select class="inp" id="shop-st" onchange="updateSetting('shop_status',this.value)">
+          <option value="open">🟢 খোলা</option><option value="closed">🔴 বন্ধ</option>
+        </select>
+      </div>
+      <div class="field"><div class="label">ডেলিভারি ফি (৳)</div><input type="text" class="inp" id="del-fee" oninput="updateSetting('delivery_fee',this.value)"></div>
+      <div class="field"><div class="label">Restaurant ফোন</div><input type="tel" class="inp" id="rest-phone" oninput="updateSetting('restaurant_phone',this.value)"></div>
+      <button class="btn btn-red" onclick="doLogout()" style="margin-top:8px;">🚪 লগ আউট</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- NAV -->
+<div id="nav">
+  <button class="nb active" id="nb-orders" onclick="showTab('orders')"><div class="nb-bar"></div><div class="nb-icon">📋</div><div class="nb-lbl">অর্ডার</div><div class="nb-dot" id="nb-dot"></div></button>
+  <button class="nb" id="nb-menu" onclick="showTab('menu')"><div class="nb-bar"></div><div class="nb-icon">🍽</div><div class="nb-lbl">মেনু</div></button>
+  <button class="nb" id="nb-riders" onclick="showTab('riders')"><div class="nb-bar"></div><div class="nb-icon">🛵</div><div class="nb-lbl">Rider</div></button>
+  <button class="nb" id="nb-report" onclick="showTab('report');renderReport()"><div class="nb-bar"></div><div class="nb-icon">📊</div><div class="nb-lbl">রিপোর্ট</div></button>
+</div>
+
+<!-- ITEM SHEET -->
+<div class="overlay" id="item-overlay" onclick="closeItemSheet()">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh"></div>
+    <div class="shdr" id="item-shdr">➕ নতুন আইটেম <button class="x" onclick="closeItemSheet()">✕</button></div>
+    <div class="sbody">
+      <input type="hidden" id="ei-id">
+      <div style="display:grid;grid-template-columns:1fr 80px;gap:8px;">
+        <div class="field"><div class="label">নাম *</div><input type="text" class="inp" id="ei-name" placeholder="খাবারের নাম"></div>
+        <div class="field"><div class="label">Emoji</div><input type="text" class="inp" id="ei-emoji" placeholder="🍚" maxlength="4"></div>
+      </div>
+      <div class="field"><div class="label">বিবরণ</div><input type="text" class="inp" id="ei-desc" placeholder="সংক্ষিপ্ত বিবরণ..."></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="field"><div class="label">দাম (৳) *</div><input type="text" inputmode="decimal" class="inp" id="ei-price" placeholder="0"></div>
+        <div class="field"><div class="label">ক্যাটাগরি</div><input type="text" class="inp" id="ei-cat" placeholder="ভাত, মাছ..."></div>
+      </div>
+      <!-- Image upload -->
+      <div class="field">
+        <div class="label">ছবি (ঐচ্ছিক)</div>
+        <img id="ei-preview" class="img-preview" style="display:none;" alt="">
+        <div class="img-upload" onclick="document.getElementById('ei-file').click()">
+          <div style="font-size:28px;">📷</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">ছবি বেছে নিন</div>
+          <input type="file" id="ei-file" accept="image/*" style="display:none;" onchange="previewImg(this)">
+        </div>
+        <div class="field" style="margin-top:6px;"><div class="label">অথবা Image URL দিন</div><input type="url" class="inp" id="ei-url" placeholder="https://..." oninput="previewUrl(this.value)"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-green" id="ei-save-btn" onclick="saveItem()">✓ সংরক্ষণ</button>
+        <button class="btn btn-ghost" onclick="closeItemSheet()">বাতিল</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT SHEET -->
+<div class="overlay" id="chat-overlay" onclick="closeChatSheet()">
+  <div class="sheet" onclick="event.stopPropagation()" style="max-height:75vh;">
+    <div class="sh"></div>
+    <div class="shdr" id="chat-shdr">Chat <button class="x" onclick="closeChatSheet()">✕</button></div>
+    <div class="sbody" id="chat-body" style="flex:1;overflow-y:auto;padding:12px;"></div>
+    <div class="sfoot">
+      <textarea class="chat-inp" id="chat-inp" placeholder="বার্তা লিখুন..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendRestMsg();}"></textarea>
+      <button class="send-btn" onclick="sendRestMsg()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- RIDER ASSIGN SHEET -->
+<div class="overlay" id="assign-overlay" onclick="closeAssignSheet()">
+  <div class="sheet" onclick="event.stopPropagation()" style="max-height:60vh;">
+    <div class="sh"></div>
+    <div class="shdr">🛵 Rider নির্ধারণ করুন <button class="x" onclick="closeAssignSheet()">✕</button></div>
+    <div class="sbody">
+      <div class="sec-lbl">Available Rider</div>
+      <div id="avail-riders"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CANCEL REASON SHEET -->
+<div class="overlay" id="cancel-overlay" onclick="closeCancelSheet()">
+  <div class="sheet" onclick="event.stopPropagation()" style="max-height:50vh;">
+    <div class="sh"></div>
+    <div class="shdr">❌ বাতিলের কারণ <button class="x" onclick="closeCancelSheet()">✕</button></div>
+    <div class="sbody">
+      <input type="hidden" id="cancel-order-id">
+      <div class="field"><div class="label">কারণ লিখুন</div><textarea class="inp" id="cancel-reason" placeholder="যেমন: আইটেম পাওয়া যাচ্ছে না..." rows="3" style="resize:none;line-height:1.6;"></textarea></div>
+      <div class="btn-row">
+        <button class="btn btn-red" onclick="confirmCancel()">বাতিল করুন</button>
+        <button class="btn btn-ghost" onclick="closeCancelSheet()">ফিরে যান</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SB = { url: '__SUPABASE_URL__', key: '__SUPABASE_KEY__' };
+const SELLER_PASS = '__SELLER_PASS__';
+let orders=[], menuItems=[], riders=[], applications=[];
+let alarmOn=false, pollTimer=null, knownIds=new Set();
+let chatOrderId=null, chatWith=null, assignOrderId=null;
+let settings={};
+
+// ── ALARM ──
+function startAlarm(n) {
+  if (alarmOn) return; alarmOn=true;
+  document.getElementById('alarm-info').textContent=`${n}টি নতুন অর্ডার অপেক্ষা করছে`;
+  document.getElementById('alarm').classList.add('on');
+  try {
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    let i=0;
+    const beep=()=>{
+      if(!alarmOn||i>20)return; i++;
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.setValueAtTime(880,ctx.currentTime);
+      o.frequency.setValueAtTime(660,ctx.currentTime+.2);
+      g.gain.setValueAtTime(.5,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.5);
+      o.start();o.stop(ctx.currentTime+.5);
+      setTimeout(beep,800);
+    };
+    beep();
+  } catch{}
+}
+function stopAlarm(){alarmOn=false;document.getElementById('alarm').classList.remove('on');}
+
+// ── AUTH ──
+function login(){
+  const pw=document.getElementById('pw').value;
+  if(pw===SELLER_PASS||pw==='seller@ghorer2024'){
+    localStorage.setItem('rest_in','1');
+    document.getElementById('login-wrap').classList.add('hide');
+    startApp();
+  }else{showToast('❌ পাসওয়ার্ড ভুল');document.getElementById('pw').value='';}
+}
+function doLogout(){if(!confirm('লগ আউট?'))return;localStorage.removeItem('rest_in');location.reload();}
+
+// ── SUPABASE ──
+function sbH(){return{'Content-Type':'application/json',apikey:SB.key,Authorization:`Bearer ${SB.key}`,Prefer:'return=representation'};}
+async function sbGet(t,q=''){const r=await fetch(`${SB.url}/rest/v1/${t}?${q}`,{headers:sbH()});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPost(t,d){const r=await fetch(`${SB.url}/rest/v1/${t}`,{method:'POST',headers:sbH(),body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPatch(t,q,d){const r=await fetch(`${SB.url}/rest/v1/${t}?${q}`,{method:'PATCH',headers:sbH(),body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbDelete(t,q){const r=await fetch(`${SB.url}/rest/v1/${t}?${q}`,{method:'DELETE',headers:sbH()});if(!r.ok)throw new Error(await r.text());}
+
+// ── HELPERS ──
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function showToast(m,d=2400){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),d);}
+function setSS(s,l){document.getElementById('sd').className='sd '+s;document.getElementById('sl').textContent=l;}
+function timeSince(iso){const s=(Date.now()-new Date(iso))/1000;if(s<60)return`${Math.floor(s)}সে`;if(s<3600)return`${Math.floor(s/60)}মি`;return`${Math.floor(s/3600)}ঘ`;}
+function showTab(n){['orders','menu','riders','report'].forEach(t=>{document.getElementById('tab-'+t).classList.toggle('active',t===n);document.getElementById('nb-'+t).classList.toggle('active',t===n);});if(n==='menu')renderMenu();if(n==='riders')renderRiders();}
+
+// ── LOAD ──
+async function loadOrders(silent=false){
+  if(!silent)setSS('syncing','লোড হচ্ছে...');
+  try{
+    orders=await sbGet('gs_orders','select=*&order=created_at.desc');
+    setSS('ok','লাইভ');
+    const pending=orders.filter(o=>o.status==='pending');
+    const newO=pending.filter(o=>!knownIds.has(o.id));
+    if(newO.length){newO.forEach(o=>knownIds.add(o.id));startAlarm(pending.length);}
+    document.getElementById('new-pill').classList.toggle('show',pending.length>0);
+    document.getElementById('nb-dot').classList.toggle('on',pending.length>0);
+    updateStats();renderOrders();
+  }catch{setSS('err','সংযোগ নেই');}
+}
+async function loadMenu(){try{menuItems=await sbGet('gs_menu_items','select=*&order=sort_order.asc');}catch{menuItems=[];}}
+async function loadRiders(){try{riders=await sbGet('gs_riders','select=*&order=created_at.desc');}catch{riders=[];}}
+async function loadApplications(){try{applications=await sbGet('gs_rider_applications','select=*&order=created_at.desc');}catch{applications=[];}}
+async function loadSettings(){
+  try{const rows=await sbGet('gs_settings','select=*');rows.forEach(r=>{settings[r.key]=r.value;});
+    document.getElementById('shop-st').value=settings.shop_status||'open';
+    document.getElementById('del-fee').value=settings.delivery_fee||'30';
+    document.getElementById('rest-phone').value=settings.restaurant_phone||'';
+  }catch{}
+}
+async function updateSetting(k,v){try{await sbPatch('gs_settings',`key=eq.${k}`,{value:v});settings[k]=v;showToast('✓ আপডেট হয়েছে');}catch{showToast('❌ আপডেট হয়নি');}}
+
+function updateStats(){
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('s-pend').textContent=orders.filter(o=>o.status==='pending').length;
+  document.getElementById('s-act').textContent=orders.filter(o=>['confirmed','preparing','ready','picked_up'].includes(o.status)).length;
+  const bill=orders.filter(o=>o.created_at?.startsWith(today)&&o.status!=='cancelled').reduce((s,o)=>s+Number(o.total||0),0);
+  document.getElementById('s-bill').textContent=`৳${bill.toLocaleString()}`;
+}
+
+// ── RENDER ORDERS ──
+function renderOrders(){
+  const filter=document.getElementById('o-filter').value;
+  let list=orders;
+  if(filter==='active')list=orders.filter(o=>['pending','confirmed','preparing','ready','picked_up'].includes(o.status));
+  else if(filter==='delivered')list=orders.filter(o=>o.status==='delivered');
+  const el=document.getElementById('order-list');
+  if(!list.length){el.innerHTML='<div class="empty">কোনো অর্ডার নেই</div>';return;}
+  const sm={pending:['⏳ অপেক্ষায়','sp-pending'],confirmed:['✓ নিশ্চিত','sp-confirmed'],preparing:['👨‍🍳 রান্না','sp-preparing'],ready:['📦 রেডি','sp-ready'],picked_up:['🛵 পথে','sp-picked_up'],delivered:['✅ ডেলিভারি','sp-delivered'],cancelled:['❌ বাতিল','sp-cancelled']};
+  el.innerHTML=list.map(o=>{
+    const[st,sc]=sm[o.status]||['?',''];
+    const items=JSON.parse(o.items||'[]');
+    const mapLink=o.address_lat?`<a href="https://www.google.com/maps?q=${o.address_lat},${o.address_lng}" target="_blank" class="map-a">🗺️ Map</a>`:'';
+    return`<div class="ocard ${o.status==='pending'?'new':o.status} anim">
+      <div class="ot"><div><div class="oid">#${o.id}</div><div class="otime">${timeSince(o.created_at)} আগে</div></div><div class="spill ${sc}">${st}</div></div>
+      <div class="ocust">
+        <div class="cav">${(o.customer_name||'?').charAt(0)}</div>
+        <div class="cinfo">
+          <div class="cname">${esc(o.customer_name||'অজানা')}</div>
+          <div class="cphone"><a href="tel:${o.customer_phone}" style="color:var(--blue);text-decoration:none;">📞 ${esc(o.customer_phone||'—')}</a></div>
+        </div>
+        <button class="btn-sm btn-blue" onclick="openChatSheet('${o.id}','customer')" style="border-radius:9px;border:none;">💬 Chat</button>
+      </div>
+      <div class="oitems">${items.map(i=>`<div class="oitem-row"><span>${i.qty}× ${esc(i.name)}</span><span style="color:var(--gold)">৳${i.subtotal}</span></div>`).join('')}</div>
+      ${o.notes?`<div style="margin-bottom:8px;font-size:12px;background:rgba(59,158,255,.06);border-radius:8px;padding:7px 10px;color:var(--blue);">📝 ${esc(o.notes)}</div>`:''}
+      ${o.address_detail?`<div class="oaddr"><div class="oaddr-lbl">📍 ডেলিভারি ঠিকানা</div><div class="oaddr-txt">${esc(o.address_detail)}${o.address_landmark?'<br>🏠 '+esc(o.address_landmark):''}${mapLink?'<br>'+mapLink:''}</div></div>`:''}
+      <div class="ototal-row"><span style="font-size:12px;color:var(--muted)">মোট বিল</span><span style="font-size:17px;font-weight:800;color:var(--gold)">৳${o.total}</span></div>
+      <div class="oact">
+        ${o.status==='pending'?`<button class="btn btn-green btn-sm" onclick="updateStatus('${o.id}','confirmed')">✓ Accept</button><button class="btn-sm btn-red btn-row" style="border:1px solid rgba(248,113,113,.3)" onclick="openCancelSheet('${o.id}')">✗ বাতিল</button>`:''}
+        ${o.status==='confirmed'?`<button class="btn btn-orange btn-sm" onclick="updateStatus('${o.id}','preparing')">👨‍🍳 রান্না শুরু</button>`:''}
+        ${o.status==='preparing'?`<button class="btn btn-blue btn-sm" onclick="updateStatus('${o.id}','ready')">📦 রেডি!</button>`:''}
+        ${o.status==='ready'?`<button class="btn btn-blue btn-sm" onclick="openAssignSheet('${o.id}')">🛵 Rider দিন</button>`:''}
+        ${o.rider_id?`<button class="btn-sm" onclick="openChatSheet('${o.id}','rider')" style="background:rgba(59,158,255,.1);color:var(--blue);border:1px solid rgba(59,158,255,.25);border-radius:9px;padding:7px 14px;cursor:pointer;">🛵 Chat Rider</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function updateStatus(id,st){
+  setSS('syncing','আপডেট...');
+  const extra={};
+  if(st==='confirmed')extra.confirmed_at=new Date().toISOString();
+  if(st==='ready')extra.ready_at=new Date().toISOString();
+  if(st==='delivered')extra.delivered_at=new Date().toISOString();
+  try{await sbPatch('gs_orders',`id=eq.${id}`,{status:st,...extra});orders=orders.map(o=>o.id===id?{...o,status:st,...extra}:o);setSS('ok','লাইভ');showToast('✓ আপডেট হয়েছে');renderOrders();updateStats();}
+  catch{showToast('❌ হয়নি');setSS('err','সমস্যা');}
+}
+
+// CANCEL
+function openCancelSheet(id){document.getElementById('cancel-order-id').value=id;document.getElementById('cancel-reason').value='';document.getElementById('cancel-overlay').classList.add('open');}
+function closeCancelSheet(){document.getElementById('cancel-overlay').classList.remove('open');}
+async function confirmCancel(){
+  const id=document.getElementById('cancel-order-id').value;
+  const reason=document.getElementById('cancel-reason').value.trim()||'—';
+  try{await sbPatch('gs_orders',`id=eq.${id}`,{status:'cancelled',cancel_reason:reason});orders=orders.map(o=>o.id===id?{...o,status:'cancelled',cancel_reason:reason}:o);closeCancelSheet();showToast('✓ অর্ডার বাতিল হয়েছে');renderOrders();}
+  catch{showToast('❌ হয়নি');}
+}
+
+// ── MENU ──
+function renderMenu(){
+  document.getElementById('menu-list').innerHTML=menuItems.map(m=>`
+    <div class="mitem anim">
+      ${m.image_url?`<img class="mitem-img" src="${esc(m.image_url)}" alt="${esc(m.name)}" onerror="this.style.display='none'">`:``}
+      <div class="mitem-emoji" ${m.image_url?'style="display:none"':''}>${esc(m.emoji||'🍽')}</div>
+      <div class="mitem-info">
+        <div class="mitem-name">${esc(m.name)}</div>
+        <div class="mitem-meta">৳${m.price} • ${esc(m.category||'—')}</div>
+      </div>
+      <button style="background:rgba(59,158,255,.1);color:var(--blue);border:none;border-radius:8px;padding:6px 10px;cursor:pointer;margin-right:6px;font-size:12px;" onclick="openItemSheet('${m.id}')">✏️</button>
+      <label class="toggle"><input type="checkbox" ${m.available?'checked':''} onchange="toggleItem('${m.id}',this.checked)"><span class="tslider"></span></label>
+    </div>`).join('')||'<div class="empty">মেনু খালি</div>';
+}
+function openItemSheet(id){
+  document.getElementById('ei-id').value=id||'';
+  if(id){
+    const m=menuItems.find(i=>i.id===id);
+    document.getElementById('item-shdr').innerHTML=`✏️ আইটেম সম্পাদনা <button class="x" onclick="closeItemSheet()">✕</button>`;
+    document.getElementById('ei-name').value=m?.name||'';
+    document.getElementById('ei-emoji').value=m?.emoji||'';
+    document.getElementById('ei-desc').value=m?.description||'';
+    document.getElementById('ei-price').value=m?.price||'';
+    document.getElementById('ei-cat').value=m?.category||'';
+    document.getElementById('ei-url').value=m?.image_url||'';
+    if(m?.image_url){document.getElementById('ei-preview').src=m.image_url;document.getElementById('ei-preview').style.display='';}
+    else{document.getElementById('ei-preview').style.display='none';}
+  }else{
+    document.getElementById('item-shdr').innerHTML=`➕ নতুন আইটেম <button class="x" onclick="closeItemSheet()">✕</button>`;
+    ['ei-name','ei-emoji','ei-desc','ei-price','ei-cat','ei-url'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('ei-preview').style.display='none';
+  }
+  document.getElementById('item-overlay').classList.add('open');
+}
+function closeItemSheet(){document.getElementById('item-overlay').classList.remove('open');}
+function previewImg(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{document.getElementById('ei-preview').src=e.target.result;document.getElementById('ei-preview').style.display='';document.getElementById('ei-url').value='';};
+  reader.readAsDataURL(file);
+}
+function previewUrl(url){
+  if(!url)return;
+  document.getElementById('ei-preview').src=url;document.getElementById('ei-preview').style.display='';
+}
+async function saveItem(){
+  const name=document.getElementById('ei-name').value.trim(),price=parseFloat(document.getElementById('ei-price').value)||0;
+  if(!name||price<=0){showToast('নাম ও দাম দিন');return;}
+  const btn=document.getElementById('ei-save-btn');btn.disabled=true;btn.textContent='⏳...';
+  // Handle image
+  let imageUrl=document.getElementById('ei-url').value.trim();
+  const file=document.getElementById('ei-file').files[0];
+  if(file&&!imageUrl){
+    // Upload to Supabase storage
+    try{
+      const ext=file.name.split('.').pop();
+      const path=`items/${Date.now()}.${ext}`;
+      const r=await fetch(`${SB.url}/storage/v1/object/menu-images/${path}`,{method:'POST',headers:{apikey:SB.key,Authorization:`Bearer ${SB.key}`,'Content-Type':file.type},body:file});
+      if(r.ok){imageUrl=`${SB.url}/storage/v1/object/public/menu-images/${path}`;}
+    }catch{showToast('ছবি upload হয়নি — URL দিন');}
+  }
+  const data={name,emoji:document.getElementById('ei-emoji').value.trim()||'🍽',description:document.getElementById('ei-desc').value.trim(),price,category:document.getElementById('ei-cat').value.trim()||'অন্যান্য',image_url:imageUrl||null,sort_order:menuItems.length+1};
+  try{
+    const id=document.getElementById('ei-id').value;
+    if(id){await sbPatch('gs_menu_items',`id=eq.${id}`,data);menuItems=menuItems.map(m=>m.id===id?{...m,...data}:m);}
+    else{const[r]=await sbPost('gs_menu_items',{id:uid(),...data,available:true});menuItems.push(r||{id:uid(),...data,available:true});}
+    closeItemSheet();renderMenu();showToast('✓ সংরক্ষিত');
+    document.getElementById('ei-file').value='';
+  }catch{showToast('❌ সেভ হয়নি');}
+  btn.disabled=false;btn.textContent='✓ সংরক্ষণ';
+}
+async function toggleItem(id,av){
+  try{await sbPatch('gs_menu_items',`id=eq.${id}`,{available:av});menuItems=menuItems.map(m=>m.id===id?{...m,available:av}:m);showToast(av?'✓ চালু':'✓ বন্ধ');}
+  catch{showToast('❌ হয়নি');renderMenu();}
+}
+
+// ── RIDERS ──
+function renderRiders(){
+  loadRiders().then(()=>{
+    document.getElementById('rider-list').innerHTML=riders.filter(r=>r.approved).map(r=>`
+      <div class="mitem anim">
+        <div class="mitem-emoji">🛵</div>
+        <div class="mitem-info">
+          <div class="mitem-name">${esc(r.name)}</div>
+          <div class="mitem-meta">📞 ${esc(r.phone)} • <span style="color:${r.status==='available'?'var(--green)':r.status==='busy'?'var(--orange)':'var(--muted)'}">${r.status==='available'?'✅ Available':r.status==='busy'?'🔴 Busy':'⚫ Offline'}</span></div>
+          ${r.current_lat?`<div style="font-size:10px;color:var(--muted);">📍 ${r.current_lat.toFixed(4)}, ${r.current_lng.toFixed(4)}</div>`:''}
+        </div>
+        <a href="tel:${r.phone}" style="background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.25);border-radius:9px;padding:6px 10px;font-size:12px;text-decoration:none;">📞</a>
+      </div>`).join('')||'<div class="empty">কোনো অনুমোদিত Rider নেই</div>';
+    loadApplications().then(()=>{
+      document.getElementById('apply-list').innerHTML=applications.filter(a=>a.status==='pending').map(a=>`
+        <div class="mitem anim">
+          <div class="mitem-emoji">👤</div>
+          <div class="mitem-info">
+            <div class="mitem-name">${esc(a.name)}</div>
+            <div class="mitem-meta">📞 ${esc(a.phone)} • ${esc(a.vehicle||'—')}</div>
+            ${a.experience?`<div style="font-size:11px;color:var(--muted);">অভিজ্ঞতা: ${esc(a.experience)}</div>`:''}
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <button class="btn-sm btn-green" style="border:none;border-radius:8px;" onclick="approveRider('${a.id}','${esc(a.name)}','${esc(a.phone)}')">✓</button>
+            <button class="btn-sm btn-red" style="border:1px solid rgba(248,113,113,.3)" onclick="rejectRider('${a.id}')">✗</button>
+          </div>
+        </div>`).join('')||'<div class="empty">কোনো আবেদন নেই</div>';
+    });
+  });
+}
+async function approveRider(appId,name,phone){
+  try{
+    await sbPatch('gs_rider_applications',`id=eq.${appId}`,{status:'approved'});
+    await sbPost('gs_riders',{id:uid(),name,phone,approved:true,status:'offline'});
+    showToast(`✓ ${name} অনুমোদিত হয়েছে`);renderRiders();
+  }catch{showToast('❌ হয়নি');}
+}
+async function rejectRider(id){
+  try{await sbPatch('gs_rider_applications',`id=eq.${id}`,{status:'rejected'});showToast('✓ প্রত্যাখ্যাত');renderRiders();}
+  catch{showToast('❌ হয়নি');}
+}
+
+// ── ASSIGN RIDER ──
+function openAssignSheet(orderId){
+  assignOrderId=orderId;
+  const avail=riders.filter(r=>r.approved&&r.status==='available');
+  document.getElementById('avail-riders').innerHTML=avail.map(r=>`
+    <div class="rider-card" onclick="assignRider('${r.id}','${esc(r.name)}','${esc(r.phone)}')">
+      <div class="rider-av">🛵</div>
+      <div style="flex:1;"><div style="font-weight:700;">${esc(r.name)}</div><div style="font-size:12px;color:var(--muted);">📞 ${esc(r.phone)}</div></div>
+      <div style="font-size:12px;color:var(--green);">✅ Available</div>
+    </div>`).join('')||'<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px;">কোনো Available Rider নেই</div>';
+  document.getElementById('assign-overlay').classList.add('open');
+}
+function closeAssignSheet(){document.getElementById('assign-overlay').classList.remove('open');}
+async function assignRider(riderId,riderName,riderPhone){
+  try{
+    await sbPatch('gs_orders',`id=eq.${assignOrderId}`,{rider_id:riderId,rider_name:riderName,rider_phone:riderPhone,status:'picked_up'});
+    await sbPatch('gs_riders',`id=eq.${riderId}`,{status:'busy'});
+    orders=orders.map(o=>o.id===assignOrderId?{...o,rider_id:riderId,rider_name:riderName,rider_phone:riderPhone,status:'picked_up'}:o);
+    closeAssignSheet();showToast(`✓ ${riderName} কে assigned করা হয়েছে`);renderOrders();
+  }catch{showToast('❌ হয়নি');}
+}
+
+// ── CHAT ──
+function openChatSheet(orderId,withType){
+  chatOrderId=orderId;chatWith=withType;
+  const t={customer:'👤 Customer',rider:'🛵 Rider'};
+  document.getElementById('chat-shdr').innerHTML=`${t[withType]||'Chat'} — #${orderId} <button class="x" onclick="closeChatSheet()">✕</button>`;
+  document.getElementById('chat-overlay').classList.add('open');
+  loadRestChat();
+}
+function closeChatSheet(){document.getElementById('chat-overlay').classList.remove('open');chatOrderId=null;}
+async function loadRestChat(){
+  try{
+    const roomId=`${chatOrderId}_${chatWith}`;
+    const msgs=await sbGet('gs_chats',`room_id=eq.${roomId}&select=*&order=created_at.asc`);
+    document.getElementById('chat-body').innerHTML=msgs.map(m=>{
+      const isMe=m.sender_type==='restaurant';
+      return`<div class="msg-wrap ${isMe?'me':'them'}">
+        <div class="msg-sn">${isMe?'Restaurant':esc(m.sender_name||chatWith)}</div>
+        <div class="msg-b">${esc(m.message)}</div>
+        <div class="msg-t">${new Date(m.created_at).toLocaleTimeString('bn-BD',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>`;
+    }).join('')||'<div style="text-align:center;color:var(--muted);font-size:12px;padding:16px;">বার্তা নেই</div>';
+    const b=document.getElementById('chat-body');b.scrollTop=b.scrollHeight;
+  }catch{}
+}
+async function sendRestMsg(){
+  const inp=document.getElementById('chat-inp'),msg=inp.value.trim();
+  if(!msg)return;inp.value='';
+  try{
+    const roomId=`${chatOrderId}_${chatWith}`;
+    await sbPost('gs_chats',{id:uid(),order_id:chatOrderId,room_id:roomId,sender_type:'restaurant',sender_name:'ঘরের স্বাদ',message:msg});
+    await loadRestChat();
+  }catch{showToast('❌ হয়নি');inp.value=msg;}
+}
+
+// ── REPORT ──
+function renderReport(){
+  const today=new Date().toISOString().slice(0,10);
+  const to=orders.filter(o=>o.created_at?.startsWith(today));
+  const del=to.filter(o=>o.status==='delivered');
+  const bill=del.reduce((s,o)=>s+Number(o.total||0),0);
+  document.getElementById('today-rep').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:22px;font-weight:800;color:var(--green);">${to.length}টি</div><div style="font-size:11px;color:var(--muted);">মোট অর্ডার</div></div>
+      <div style="background:rgba(240,180,41,.06);border:1px solid rgba(240,180,41,.15);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:22px;font-weight:800;color:var(--gold);">৳${bill.toLocaleString()}</div><div style="font-size:11px;color:var(--muted);">ডেলিভারি আয়</div></div>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:var(--muted);">বাতিল: ${to.filter(o=>o.status==='cancelled').length}টি &nbsp;|&nbsp; চলছে: ${to.filter(o=>!['delivered','cancelled'].includes(o.status)).length}টি</div>`;
+}
+
+// ── START ──
+async function startApp(){setSS('syncing','লোড হচ্ছে...');await Promise.all([loadOrders(),loadMenu(),loadSettings()]);pollTimer=setInterval(()=>loadOrders(true),8000);setInterval(()=>{if(chatOrderId)loadRestChat();},5000);}
+
+(function(){if(localStorage.getItem('rest_in')){document.getElementById('login-wrap').classList.add('hide');startApp();}})();
+</script>
+</body>
+</html>
