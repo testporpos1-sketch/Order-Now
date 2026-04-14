@@ -1,9 +1,1 @@
-{
-  "buildCommand": "node build.js",
-  "outputDirectory": "gs2",
-  "framework": null,
-  "routes": [
-    { "src": "/", "dest": "/index.html" },
-    { "src": "/(.*)", "dest": "/$1" }
-  ]
-}
+{"buildCommand":"node build.js","outputDirectory":"public","framework":null}
