@@ -1,1 +1,13 @@
-{"buildCommand":"node build.js","outputDirectory":"public","framework":null}
+{
+  "buildCommand": "node build.js",
+  "outputDirectory": "public",
+  "framework": null,
+  "routes": [
+    { "src": "/restaurant/(.*)", "dest": "/restaurant/$1" },
+    { "src": "/rider/(.*)", "dest": "/rider/$1" },
+    { "src": "/owner/(.*)", "dest": "/owner/$1" },
+    { "src": "/apply-restaurant/(.*)", "dest": "/apply-restaurant/$1" },
+    { "src": "/apply-rider/(.*)", "dest": "/apply-rider/$1" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}
